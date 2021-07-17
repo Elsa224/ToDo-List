@@ -14,7 +14,6 @@ app.use( bodyParser.urlencoded( { extended: true } ) );
 //app using modules (express.static to load local files on the server, bodyParser)
 app.use( express.static( `publicFiles` ) );
 
-
 //Variables to contain the toDos
 let items = [ ];
 let workItems = [ ];
@@ -22,7 +21,7 @@ let workItems = [ ];
 //GET requests
 app.get( "/", ( req, res ) => {
     //Using EJS to send the current day of the week
-    res.render( "list", { listTitle: currentDay, userToDos: items } );
+    res.render( "list", { listTitle: date.getDate, userToDos: items } ); //TODO A revoir plus tard
 
 } );
 
@@ -42,7 +41,6 @@ app.post( "/", ( req, res ) => {
     else
         { items.push( toDoItem ); res.redirect( "/" ); }
 } );
-
 
 //Spin up the server
 app.listen( API_PORT, () => {
