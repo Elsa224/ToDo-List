@@ -1,7 +1,7 @@
 //Require modules we use
 const express = require( "express" );
 const bodyParser = require( "body-parser" );
-const date = require( `${__dirname}/date.js` );
+const date = require( `${__dirname}/date.js` ); //Personal module 
 
 //Constant variables
 const API_PORT = 3000;
@@ -14,16 +14,18 @@ app.use( bodyParser.urlencoded( { extended: true } ) );
 //app using modules (express.static to load local files on the server, bodyParser)
 app.use( express.static( `publicFiles` ) );
 
-
 //Variables to contain the toDos
-let items = [ ];
-let workItems = [ ];
+const items = [ ];
+const workItems = [ ];
 
 //GET requests
 app.get( "/", ( req, res ) => {
-    //Using EJS to send the current day of the week
-    res.render( "list", { listTitle: currentDay, userToDos: items } );
 
+    //Calling the function to get the current day
+    let currentDay = date.getDate();
+
+    //Using EJS to send the current day of the week to the ejs file
+    res.render( "list", { listTitle: currentDay, userToDos: items } );
 } );
 
 app.get( "/work", ( req, res ) => {
@@ -42,7 +44,6 @@ app.post( "/", ( req, res ) => {
     else
         { items.push( toDoItem ); res.redirect( "/" ); }
 } );
-
 
 //Spin up the server
 app.listen( API_PORT, () => {
