@@ -20,11 +20,6 @@ const workItems = [ ];
 
 //GET requests
 app.get( "/", ( req, res ) => {
-<<<<<<< HEAD
-=======
-    //Using EJS to send the current day of the week
-    res.render( "list", { listTitle: date.getDate, userToDos: items } ); //TODO A revoir plus tard
->>>>>>> 92159c16e50199889810c812c2411dd3439cd1f5
 
     //Calling the function to get the current day
     let currentDay = date.getDate();
