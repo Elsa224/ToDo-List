@@ -1,10 +1,11 @@
 //Require modules we use
 const express = require( "express" );
 const bodyParser = require( "body-parser" );
+const mongoose = require( "mongoose" );
 const date = require( `${__dirname}/date.js` ); //Personal module 
 
 //Constant variables
-const API_PORT = 3000;
+const APP_PORT = 3000;
 
 //Creating an app constant and use EJS as its view engine
 const app = express();
@@ -12,21 +13,88 @@ app.set( "view engine", "ejs" );
 app.use( bodyParser.urlencoded( { extended: true } ) );
 
 //app using modules (express.static to load local files on the server, bodyParser)
-app.use( express.static( `publicFiles` ) );
+app.use( express.static( `${ __dirname }/public` ) );
 
-//Variables to contain the toDos
-const items = [ ];
-const workItems = [ ];
+//Replace the arrays by a database
+mongoose.connect( "mongodb://localhost:27017/todolistDB" )
+
+//Schema
+const itemSchema = mongoose.Schema({
+    name : {
+        type: String,
+        required: [ true, "No name specified !" ]
+    }
+});
+
+const listSchema = mongoose.Schema({
+    name : {
+        type: String,
+        required: [ true, "No name specified !" ]
+    },
+    items : [ itemSchema ]
+})
+
+//Model
+const Item = mongoose.model( "Item", itemSchema );
+
+const List = mongoose.model( "List", listSchema );
+
+//Document
+const item1 = new Item( {
+    name: "Welcome to your ToDolist"
+} );
+
+const item2 = new Item( {
+    name: "Hit the + button to add a new todo"
+} );
+
+const item3 = new Item( {
+    name: "<--- Hit this to delete a todo"
+} );
+
+const defaultItems = [ item1, item2, item3 ];
+
 
 //GET requests
 app.get( "/", ( req, res ) => {
 
+    Item.find( {},  ( error, items) => {
+
+        if (items.length === 0) {
+            //Insert Many document
+            Item.insertMany( defaultItems , ( error ) => {
+                if ( error )
+                    console.log( error );
+                else
+                    console.log( "Successfully inserted the documents " );
+            });
+            res.redirect( "/" )
+        }
+        else {
+            // console.log( items );
+            //Using EJS to send the current day of the week to the ejs file
+            res.render( "list", { listTitle: currentDay, userToDos: items } );
+        }
+            
+    } );
+
     //Calling the function to get the current day
     let currentDay = date.getDate();
 
-    //Using EJS to send the current day of the week to the ejs file
-    res.render( "list", { listTitle: currentDay, userToDos: items } );
+    
 } );
+
+app.get( "/:customListName", ( req, res ) => {
+    const customListName = req.params.customListName;
+
+    const list = new List({
+        name: customListName,
+        items : defaultItems
+    })
+
+    list.save();
+}  )
+
 
 app.get( "/work", ( req, res ) => {
     res.render( "list", { listTitle: "Work List", userToDos: workItems } );
@@ -38,14 +106,31 @@ app.get( "/about", ( req, res ) => {
 
 //POST requests
 app.post( "/", ( req, res ) => {
-    let toDoItem = req.body.toDoItem;   //parsed the toDoItem 
-    if ( req.body.listButton === "Work" ) 
-        { workItems.push( toDoItem ); res.redirect( "/work" ); }
-    else
-        { items.push( toDoItem ); res.redirect( "/" ); }
+    const itemName = req.body.toDoItem;
+
+    const todo = new Item({
+        name: itemName
+    });
+     
+    todo.save();
+
+    res.redirect( "/" );
+
 } );
 
+app.post( "/delete", ( req, res ) => {
+    const checkedItemId = req.body.checkbox;
+    
+    Item.findByIdAndRemove( checkedItemId, ( error ) => {
+        if ( error )
+            console.log( error );
+        else
+            console.log( "Successfully deleted the document with id " + checkedItemId );
+        res.redirect( "/" );
+
+    } )
+} )
 //Spin up the server
-app.listen( API_PORT, () => {
-    console.log( `Server is running on port ${ API_PORT }...\n` );
+app.listen( APP_PORT, () => {
+    console.log( `Server is running on port ${ APP_PORT }...\n` );
 } );

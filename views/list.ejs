@@ -6,12 +6,21 @@
         </div>
 
         <div class="box">
-            <% for( let i = 0; i < userToDos.length; i++ ) { %> 
+            <!-- //<% for( let i = 0; i < userToDos.length; i++ ) { %> 
                 <div class="item">
                     <input type="checkbox">
-                    <p> <%= userToDos[ i ]  %> </p> 
+                    //<p> <%= userToDos[ i ]  %> </p> 
                 </div>
-            <% } %> 
+            //<% } %>  -->
+
+             <% userToDos.forEach( userToDo => { %>
+                <form action="/delete" method="post">
+                    <div class="item">
+                        <input type="checkbox" name="checkbox" value="<%= userToDo._id %>" onchange="this.form.submit()">
+                        <p> <%= userToDo.name %>  </p>
+                    </div>
+                </form>
+             <% }) %>
 
             <form action="/" method="post" class="item">
             
