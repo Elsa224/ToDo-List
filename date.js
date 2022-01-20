@@ -7,10 +7,10 @@ exports.getDate = function ()
     //Sending options to the date
     const options = 
     {
-            weekday: "long" ,
-            day: "numeric" ,
-            month: "long" ,
-            // year: "numeric" ,
+        weekday: "long" ,
+        day: "numeric" ,
+        month: "long" ,
+        // year: "numeric" ,
     };
 
     return today.toLocaleDateString("en-US", options);
