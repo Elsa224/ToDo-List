@@ -55,6 +55,9 @@ const item3 = new Item({
 const defaultItems = [item1, item2, item3];
 
 
+//Calling the function to get the current day
+let currentDay = date.getDate();
+
 //GET requests
 app.get("/", (req, res) => {
 
@@ -76,9 +79,6 @@ app.get("/", (req, res) => {
         }
 
     });
-
-    //Calling the function to get the current day
-    let currentDay = date.getDate();
 
 
 });
@@ -128,14 +128,24 @@ app.get("/about", (req, res) => {
 //POST requests
 app.post("/", (req, res) => {
     const itemName = req.body.toDoItem;
+    const list_name = req.body.listButton;
 
     const todo = new Item({
         name: itemName
     });
 
-    todo.save();
+    if ( list_name === currentDay ) {
+        todo.save();
+        res.redirect("/");
+    } else {
+        List.findOne( { name: list_name }, ( error, foundList ) => {
+            foundList.items.push( todo );
+            foundList.save();
+            res.redirect( "/" + list_name );
+        } )
+        
+    }
 
-    res.redirect("/");
 
 });
 
