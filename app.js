@@ -1,8 +1,9 @@
-//Require modules we use
+//Require modules we use 
 const express = require( "express" );
 const bodyParser = require( "body-parser" );
 const mongoose = require( "mongoose" );
-const date = require( `${ __dirname }/date.js` ); //Personal module 
+const _ = require( "lodash" );
+//const date = require( `${ __dirname }/date.js` ); //Personal module 
 
 //Constant variables
 const APP_PORT = 3000;
@@ -55,10 +56,6 @@ const item3 = new Item( {
 const defaultItems = [ item1, item2, item3 ] ;
 
 //Calling the function to get the current day
-let currentDay = date.getDate(  );
-
-//Calling the function to get the current day
-let currentDay = date.getDate();
 
 //GET requests
 app.get( "/", ( req, res ) => {
@@ -77,14 +74,15 @@ app.get( "/", ( req, res ) => {
         } else {
             // console.log(  items  );
             // Using EJS to send the current day of the week to the ejs file
-            res.render( "list", { listTitle: currentDay, userToDos: items } );
+            res.render( "list", { listTitle: "Today", userToDos: items } );
         }
 
     } );
 
+});
 
 app.get( "/:customListName", ( req, res ) => {
-    const customListName = req.params.customListName;
+    const customListName = _.capitalize( req.params.customListName );
 
     // Test if the customListName already exists
     List.findOne( { name: customListName }, ( error, foundList ) => {
@@ -105,11 +103,11 @@ app.get( "/:customListName", ( req, res ) => {
                 // console.log( "Yesss ! That document already exists !" );
                 // Show an existing list
                 res.render( "list", { listTitle: foundList.name, userToDos: foundList.items } )
-                console.log(  foundList  );  
+                //console.log(  foundList  );  
             }
         }
 
-    } )
+    } );
 
 
 
@@ -134,33 +132,58 @@ app.post( "/", ( req, res ) => {
         name: itemName
     });
 
-    if ( list_name === currentDay ) {
+    if ( list_name !== "Today" ) {
+         // Test if the customListName already exists or not
+        List.findOne( { name: list_name }, ( error, foundList ) => {
+            if ( !error ) { // if there is no error
+                if ( !foundList ) {
+                    // Create a new list
+                    const list = new List( {
+                        name: list_name,
+                        items: defaultItems
+                    } )
+
+                    // Save the new todo and save the new list
+                    list.items.push( todo );
+                    list.save(  );
+                } else { 
+                    foundList.items.push( todo );
+                    foundList.save();
+                }
+                res.redirect( "/" + list_name );  
+            } 
+        } ) ;
+    } else {
         todo.save();
         res.redirect("/");
-    } else {
-        List.findOne( { name: list_name }, ( error, foundList ) => {
-            foundList.items.push( todo );
-            foundList.save();
-            res.redirect( "/" + list_name );
-        } )
-        
     }
 
-
-} );
+});
 
 app.post( "/delete", ( req, res ) => {
         const checkedItemId = req.body.checkbox;
+        const listName = req.body.listName;
 
-        Item.findByIdAndRemove( checkedItemId, ( error ) => {
-            if ( error )
-                console.log( error );
-            else
-                console.log( "Successfully deleted the document with id " + checkedItemId );
-            res.redirect( "/" );
+        if ( listName !== "Today" ) {
+            List.findOneAndUpdate( { name: listName }, { $pull: { items: { _id: checkedItemId } } }, ( error, foundList ) => {
+                if ( !error )
+                    res.redirect( "/" + listName );
+                else
+                    console.log( error );   
+            } );
+            
+        } else {
+            Item.findByIdAndRemove( checkedItemId, ( error ) => {
+                if ( error )
+                    console.log( error );
+                else { 
+                    console.log( "Successfully deleted the document with id " + checkedItemId );
+                    res.redirect( "/" );
+                }
+            } );
+        }
+} );
 
-        } )
-    } )
     //Spin up the server
 app.listen( APP_PORT, (  ) => {
     console.log( `Server is running on port ${ APP_PORT }...\n` );
