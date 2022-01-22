@@ -17,7 +17,7 @@ app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( express.static( `${ __dirname }/public` ) );
 
 //Replace the arrays by a database
-mongoose.connect( "mongodb://localhost:27017/todolistDB" )
+mongoose.connect( "mongodb+srv://admin:adminRoot@cluster0.aeuat.mongodb.net/todolistDB" );
 
 //Schema
 const itemSchema = mongoose.Schema( {
