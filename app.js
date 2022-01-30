@@ -185,7 +185,7 @@ app.post( "/delete", ( req, res ) => {
 
 let APP_PORT = process.env.PORT;
 if ( APP_PORT == null || APP_PORT == "" ) 
-    APP_PORT = 3000
+    {APP_PORT = 3000}
 
     //Spin up the server
 app.listen( APP_PORT, (  ) => {
