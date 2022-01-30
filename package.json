@@ -12,6 +12,10 @@
   },
   "author": "Elsa T.",
   "license": "ISC",
+  "engines": {
+    "node": "14.17.3"
+  },
+
   "bugs": {
     "url": "https://github.com/Elsa224/ToDo-List/issues"
   },

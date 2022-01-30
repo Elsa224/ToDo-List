@@ -6,7 +6,6 @@ const _ = require( "lodash" );
 //const date = require( `${ __dirname }/date.js` ); //Personal module 
 
 //Constant variables
-const APP_PORT = 3000;
 
 //Creating an app constant and use EJS as its view engine
 const app = express(  );
@@ -184,7 +183,11 @@ app.post( "/delete", ( req, res ) => {
         }
 } );
 
+let APP_PORT = process.env.PORT;
+if ( APP_PORT == null || APP_PORT == "" ) 
+    APP_PORT = 3000
+
     //Spin up the server
 app.listen( APP_PORT, (  ) => {
-    console.log( `Server is running on port ${ APP_PORT }...\n` );
+    console.log( `Server has started successfully on port ${ APP_PORT }...\n` );
 } );
