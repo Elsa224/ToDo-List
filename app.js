@@ -1,6 +1,7 @@
 //Require modules we use 
 const express = require( "express" );
 const bodyParser = require( "body-parser" );
+const ejs = require( "ejs" );
 const mongoose = require( "mongoose" );
 const _ = require( "lodash" );
 //const date = require( `${ __dirname }/date.js` ); //Personal module 
